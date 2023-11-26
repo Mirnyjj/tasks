@@ -1,8 +1,9 @@
 body {
+  margin: auto;
   justify-content: center;
   min-height: 100vh;
 	display: flex;
   align-items: center;
-  background-color: rgba(43, 190, 209, 0.651);
-  color: aliceblue;
+  background-color: rgb(255, 255, 255);
+  color: black;
 }

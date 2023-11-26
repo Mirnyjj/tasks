@@ -1,34 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './App.css';
+import { useRequestAddTodos, useRequestGetTodos } from './hooks'
+import ListItem from './components/ListItem';
+import SearchForTodos from './components/SearchTodos';
+import SortTasksAlphabetically from './components/SortingTasks';
+import AddingTask from './components/AddTodo';
 
 function App() {
-  const [todos, setTodos] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [refreshTodosFlag, setRefreshTodosFlag] = useState(false);
+  const refrechTodos = () => setRefreshTodosFlag(!refreshTodosFlag);
+  const { isLoading, todos, fetchBySearchQery, fetchBySort } = useRequestGetTodos(refreshTodosFlag);
+  const { requestAddTodos } = useRequestAddTodos(refrechTodos);
 
-  useEffect(() => {
-    setIsLoading(true);
+  console.log(todos.length)
+  console.log(refreshTodosFlag, 'refreshTodosFlag')
 
-    fetch('https://jsonplaceholder.typicode.com/todos')
-      .then((loadedData) => loadedData.json())
-      .then((loadedProducts) => {
-        setTodos(loadedProducts[0]);
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
   return (
-    <>
+    <div className='board'>
       <h1> Список дел</h1>
-      <div className='header'>
-        {isLoading ? (
-          <div className="loader"></div>
-        ) : (
-          <li key={todos.id} className='todos'>
-            Дело №{todos.id} - {todos.title}
-          </li>
-        )}
-      </div>
-    </>
-
+      {isLoading ? (
+        <div className="loader"></div>
+      ) : (
+        <>
+          <AddingTask requestAddTodos={requestAddTodos} />
+          <div className='SortAndSearch'>
+            <SortTasksAlphabetically fetchBySort={fetchBySort} />
+            <SearchForTodos fetchBySearchQery={fetchBySearchQery} />
+          </div>
+          {todos.length === 0 ? 'Дела не запланированы' :
+            todos.map(({ id, title }) => <ListItem key={id} id={id} title={title} refrechTodos={refrechTodos} />)}
+        </>
+      )}
+    </div>
   );
 }
 

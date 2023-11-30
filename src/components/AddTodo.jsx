@@ -2,11 +2,12 @@
 import { useState } from "react";
 import { useRequestAddTodos } from "../hooks";
 import './AddTodo.css'
+import AddIcon from '@mui/icons-material/Add';
 
 
-function AddingTask({ requestAddTodos }) {
+function AddingTask() {
     const [text, setText] = useState('')
-    const { isCreating } = useRequestAddTodos();
+    const { isCreating, requestAddTodos } = useRequestAddTodos();
 
     const onChange = ({ target }) => {
         console.log(target.value);
@@ -24,7 +25,7 @@ function AddingTask({ requestAddTodos }) {
                 onChange={onChange}
             />
             <button className="ButtonAdd" disabled={isCreating} onClick={() => requestAddTodos(text)}>
-                Добавить задачу
+                <AddIcon />
             </button>
         </div>
     )

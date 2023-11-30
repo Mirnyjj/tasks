@@ -1,49 +1,47 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState} from "react";
+import {ref, onValue} from 'firebase/database';
+import 'firebase/database';
+import {db} from '../firebase';
 
-export const useRequestGetTodos = (refreshTodosFlag) => {
-    const [isLoading, setIsLoading] = useState(false);
+export const useRequestGetTodos = () => {
+    const [isLoading, setIsLoading] = useState(true);
     const [isLoadingSort, setIsLoadingSort] = useState(false);
-
-  const [todos, setTodos] = useState([]);
-
+    const [todos, setTodos] = useState({});
     useEffect(() => {
-    setIsLoading(true);
-    fetch('http://localhost:3000/Tasks')
-      .then((loadedData) => loadedData.json())
-      .then((loadedTodos) => {
+      setIsLoading(true)
+      const todosDbRef = ref(db, 'Tasks')
+      return onValue(todosDbRef, (snapshot) => {
+        const loadedTodos = snapshot.val() || {};
         setTodos(loadedTodos);
+        setIsLoading(false)
       })
-      .finally(() => setIsLoading(false));
-  }, [refreshTodosFlag]);
+  }, []);
   
   const fetchBySort = () => {
     setIsLoadingSort(true);
-    fetch(`http://localhost:3000/Tasks?_sort=title&_order=asc`)
-        .then((loadedData) => loadedData.json())
-        .then((loadedTodos) => {
-            setTodos(loadedTodos);
-            [refreshTodosFlag]
-            console.log('Задачи отсортированы', loadedTodos)
-        })
-        .finally(() => setIsLoadingSort(false));
-  }
 
-  const fetchBySearchQery = (value) => {
-    fetch(`http://localhost:3000/Tasks?title_like=${value}`)
-        .then((loadedData) => loadedData.json())
-        .then((loadedTodos) => {
-            setTodos(loadedTodos);
-            console.log('Задача найдена', loadedTodos)
-        })
-        .finally(() => value = null);
+    const todosDbRef = ref(db, 'Tasks')
+    return onValue(todosDbRef, (snapshot) => {
+
+      const loadedTodos = snapshot.val() || {};
+      console.log(loadedTodos)
+      const loadedTodosArray = Object.keys(loadedTodos).map((key) => ({id: key, title: loadedTodos[key].title}))
+      const sortArray = loadedTodosArray.sort((a, b) => a.title.localeCompare(b.title));
+      console.log(sortArray)
+     const sortedObject = {}
+     sortArray.forEach((item) => {
+      sortedObject[item.id] = {title: item.title}
+     })
+      console.log(sortedObject)
+      setTodos(sortedObject);
+      setIsLoading(false)
+    })
   }
-  
 
   return {
     isLoading,
     isLoadingSort,
     todos,
-    fetchBySearchQery,
     fetchBySort,
   }
 }

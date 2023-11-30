@@ -1,37 +1,55 @@
-import { useState } from 'react';
 import './App.css';
 import { useRequestAddTodos, useRequestGetTodos } from './hooks'
 import ListItem from './components/ListItem';
 import SearchForTodos from './components/SearchTodos';
 import SortTasksAlphabetically from './components/SortingTasks';
 import AddingTask from './components/AddTodo';
+import { useFetchBySearchQery } from './hooks/use-request-search';
 
 function App() {
-  const [refreshTodosFlag, setRefreshTodosFlag] = useState(false);
-  const refrechTodos = () => setRefreshTodosFlag(!refreshTodosFlag);
-  const { isLoading, todos, fetchBySearchQery, fetchBySort } = useRequestGetTodos(refreshTodosFlag);
-  const { requestAddTodos } = useRequestAddTodos(refrechTodos);
-
-  console.log(todos.length)
-  console.log(refreshTodosFlag, 'refreshTodosFlag')
+  const { isLoading, todos, fetchBySort } = useRequestGetTodos();
+  const { requestAddTodos } = useRequestAddTodos();
+  const { todosSearch, todosSearchLoading, fetchBySearchQery } = useFetchBySearchQery()
 
   return (
-    <div className='board'>
-      <h1> Список дел</h1>
+
+    <div className='boardWrapper'>
       {isLoading ? (
-        <div className="loader"></div>
+        <span className="loader"></span>
       ) : (
-        <>
-          <AddingTask requestAddTodos={requestAddTodos} />
-          <div className='SortAndSearch'>
-            <SortTasksAlphabetically fetchBySort={fetchBySort} />
-            <SearchForTodos fetchBySearchQery={fetchBySearchQery} />
-          </div>
-          {todos.length === 0 ? 'Дела не запланированы' :
-            todos.map(({ id, title }) => <ListItem key={id} id={id} title={title} refrechTodos={refrechTodos} />)}
-        </>
+        <div className='board'>
+          <h1> Список дел</h1>
+
+          <>
+            <AddingTask requestAddTodos={requestAddTodos} />
+            <div className='SortAndSearch'>
+              <SearchForTodos fetchBySearchQery={fetchBySearchQery} />
+              <SortTasksAlphabetically fetchBySort={fetchBySort} />
+            </div>
+            {todos === {} ? 'Дела не запланированы' :
+              (<ul className='todos'>
+
+                {todosSearchLoading === true ?
+                  Object.entries(todos)
+                    .map(([id, { title }]) =>
+                      <ListItem key={id} id={id} title={title} />
+                    )
+
+                  :
+
+                  <ListItem key={todosSearch.id} id={todosSearch.id} title={todosSearch.title} />
+
+                }
+
+              </ul>)
+            }
+
+          </>
+
+        </div>
       )}
     </div>
+
   );
 }
 

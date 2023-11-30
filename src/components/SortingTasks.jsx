@@ -1,15 +1,15 @@
 /* eslint-disable react/prop-types */
 import { useRequestGetTodos } from "../hooks";
 import '../App.css'
+import SortIcon from '@mui/icons-material/Sort';
 
 function SortTasksAlphabetically({ fetchBySort }) {
     const { isLoadingSort } = useRequestGetTodos();
-    console.log(isLoadingSort)
 
 
     return (
         <button className="ButtonSort" disabled={isLoadingSort} onClick={() => fetchBySort()}>
-            Сортировка
+            <SortIcon />
         </button>
     )
 }

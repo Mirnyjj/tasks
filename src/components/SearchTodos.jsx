@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { useDebounce } from "../hooks";
-function SearchForTodos({ fetchBySearchQery }) {
+function SearchForTodos({ fetchBySearchQery, id }) {
     const [seachText, setSeachText] = useState('')
 
     const onChange = ({ target }) => {
@@ -12,7 +12,7 @@ function SearchForTodos({ fetchBySearchQery }) {
     const debouncedSearchText = useDebounce(seachText)
 
     useEffect(() => {
-        fetchBySearchQery(seachText)
+        fetchBySearchQery(seachText, id)
     }, [debouncedSearchText])
 
     return (
